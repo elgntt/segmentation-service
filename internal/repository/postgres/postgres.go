@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/jackc/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -33,10 +34,11 @@ func (r *repo) DeleteSegment(ctx context.Context, slug string) error {
 	return err
 }
 
-func (r *repo) AddUserToSegment(ctx context.Context, segmentToAdd, userId int) error {
+func (r *repo) AddUserToSegment(ctx context.Context, expirationTime *time.Time, segmentToAdd, userId int) error {
 	_, err := r.pool.Exec(ctx,
-		` INSERT INTO users_segments (user_id, segment_id)
-		  VALUES ($1, $2) ON CONFLICT (user_id, segment_id) DO NOTHING`, userId, segmentToAdd)
+		` INSERT INTO users_segments (user_id, segment_id, expiration_time)
+		  VALUES ($1, $2, $3) ON CONFLICT (user_id, segment_id) DO UPDATE
+		  	SET expiration_time = excluded.expiration_time`, userId, segmentToAdd, expirationTime)
 
 	return err
 }
@@ -54,7 +56,8 @@ func (r *repo) GetActiveUserSegmentsIDs(ctx context.Context, userId int) ([]int,
 	rows, err := r.pool.Query(ctx,
 		` SELECT segment_id 
 		  FROM users_segments
-		  WHERE user_id = $1`, userId)
+		  WHERE user_id = $1
+		  AND (expiration_time IS NULL OR expiration_time >= CURRENT_TIMESTAMP)`, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -84,8 +87,8 @@ func (r *repo) GetSlugsByIDs(ctx context.Context, segmentsIDs []int) ([]string, 
 	if err != nil {
 		return nil, err
 	}
-	var segmentsSlug []string
-	
+	segmentsSlug := []string{}
+
 	for rows.Next() {
 		var segment string
 		if err := rows.Scan(&segment); err != nil {

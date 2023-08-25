@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"time"
+
 	"github.com/elgntt/avito-internship-2023/internal/model"
 )
 
@@ -10,7 +12,7 @@ type repository interface {
 	DeleteSegment(ctx context.Context, slug string) error
 	GetActiveUserSegmentsIDs(ctx context.Context, userId int) ([]int, error)
 	RemoveUserFromSegment(ctx context.Context, segmentFromRemove, userId int) error
-	AddUserToSegment(ctx context.Context, segmentToAdd, userId int) error
+	AddUserToSegment(ctx context.Context, expirationTime *time.Time, segmentToAdd, userId int) error
 
 	GetIdBySlugs(ctx context.Context, slugs []string) ([]int, error)
 	GetSlugsByIDs(ctx context.Context, segmentsIDs []int) ([]string, error)
@@ -53,7 +55,7 @@ func (s *service) UserSegmentAction(ctx context.Context, userSegment model.UserS
 		return err
 	}
 	for _, val := range segmentsIdToAdd {
-		err := s.repository.AddUserToSegment(ctx, val, userSegment.UserID)
+		err := s.repository.AddUserToSegment(ctx, userSegment.SegmentExpirationTime, val, userSegment.UserID)
 		if err != nil {
 			return err
 		}
