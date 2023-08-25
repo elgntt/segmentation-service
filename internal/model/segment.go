@@ -2,8 +2,9 @@ package model
 
 import "time"
 
-type Segment struct {
-	Slug string `json:"slug"`
+type AddSegment struct {
+	Slug            string `json:"slug"`
+	AutoJoinProcent int    `json:"autoJoinProcent"`
 }
 
 type UserSegmentAction struct {

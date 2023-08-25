@@ -12,13 +12,13 @@ import (
 
 func (h *handler) CreateSegment(c *gin.Context) {
 	ctx := context.Background()
-	segment := model.Segment{}
+	segment := model.AddSegment{}
 
 	if err := c.BindJSON(&segment); err != nil {
 		response.WriteErrorResponse(c, app_err.NewBusinessError("invalid request body"))
 		return
 	}
-	err := h.service.CreateSegment(ctx, segment.Slug)
+	err := h.service.CreateSegment(ctx, segment)
 	if err != nil {
 		response.WriteErrorResponse(c, err)
 		return

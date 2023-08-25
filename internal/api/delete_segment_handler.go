@@ -2,24 +2,26 @@ package api
 
 import (
 	"context"
-	"github.com/elgntt/avito-internship-2023/internal/model"
+	"net/http"
+
 	"github.com/elgntt/avito-internship-2023/internal/pkg/app_err"
 	response "github.com/elgntt/avito-internship-2023/internal/pkg/http"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func (h *handler) DeleteSegment(c *gin.Context) {
 	ctx := context.Background()
-	segment := model.Segment{}
-
-	if err := c.BindJSON(&segment); err != nil {
+	request := struct {
+		Slug string `json:"slug"`
+	}{}
+	
+	if err := c.BindJSON(&request); err != nil {
 		response.WriteErrorResponse(c, app_err.NewBusinessError("invalid request body"))
 		return
 	}
 
-	err := h.service.DeleteSegment(ctx, segment.Slug)
+	err := h.service.DeleteSegment(ctx, request.Slug)
 	if err != nil {
 		response.WriteErrorResponse(c, err)
 		return

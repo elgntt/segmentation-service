@@ -2,13 +2,14 @@ package api
 
 import (
 	"context"
+
 	"github.com/elgntt/avito-internship-2023/internal/model"
 
 	"github.com/gin-gonic/gin"
 )
 
 type service interface {
-	CreateSegment(ctx context.Context, slug string) error
+	CreateSegment(ctx context.Context, segmentData model.AddSegment) error
 	DeleteSegment(ctx context.Context, slug string) error
 	UserSegmentAction(ctx context.Context, userSegment model.UserSegmentAction) error
 	GetActiveUserSegments(ctx context.Context, userId int) ([]string, error)

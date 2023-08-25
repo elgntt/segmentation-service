@@ -18,12 +18,20 @@ func New(pool *pgxpool.Pool) *repo {
 	}
 }
 
-func (r *repo) CreateSegment(ctx context.Context, slug string) error {
-	_, err := r.pool.Exec(ctx,
+func (r *repo) CreateSegment(ctx context.Context, slug string) (int, error) {
+	row := r.pool.QueryRow(ctx,
 		` INSERT INTO segments (slug)
-		  VALUES ($1)`, slug)
+		  VALUES ($1)
+		  RETURNING id`, slug)
 
-	return err
+	var segmentId int
+
+	err := row.Scan(&segmentId)
+	if err != nil {
+		return 0, err
+	}
+
+	return segmentId, nil
 }
 
 func (r *repo) DeleteSegment(ctx context.Context, slug string) error {
@@ -134,4 +142,29 @@ func (r *repo) GetIdBySlugs(ctx context.Context, slugs []string) ([]int, error) 
 	}
 
 	return ids, nil
+}
+
+func (r *repo) GetAllUsers(ctx context.Context) ([]int, error) {
+	rows, err := r.pool.Query(ctx,
+		`SELECT DISTINCT user_id 
+		 FROM users_segments`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var userIDs []int
+	for rows.Next() {
+		var userID int
+		if err := rows.Scan(&userID); err != nil {
+			return nil, err
+		}
+		userIDs = append(userIDs, userID)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return userIDs, nil
 }
