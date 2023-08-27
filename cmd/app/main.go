@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/elgntt/avito-internship-2023/internal/api"
 	"github.com/elgntt/avito-internship-2023/internal/config"
@@ -23,12 +24,32 @@ func main() {
 		log.Fatal(err)
 	}
 
-	r := api.New(
-		service.New(
-			repository.New(pool),
-		),
+	service := service.New(
+		repository.New(pool),
 	)
+
+	r := api.New(
+		service,
+	)
+
+	go ClearExpiredSegmentsWorker(ctx, service)
 
 	log.Println("Server has been successfully started on the port :8080")
 	log.Fatal(r.Run(":8080"))
+}
+
+func ClearExpiredSegmentsWorker(ctx context.Context, s *service.Service) {
+	for {
+		workerInterval := time.NewTicker(1 * time.Minute)
+
+		select {
+		case <-workerInterval.C:
+			err := s.DeleteExpiredUserSegments(ctx)
+			if err != nil {
+				log.Println("Worker err:", err)
+			}
+			log.Println("Success")
+		}
+	}
+
 }

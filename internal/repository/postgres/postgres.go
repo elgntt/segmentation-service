@@ -2,9 +2,12 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"time"
 
+	"github.com/elgntt/avito-internship-2023/internal/model"
 	"github.com/jackc/pgtype"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -34,30 +37,107 @@ func (r *repo) CreateSegment(ctx context.Context, slug string) (int, error) {
 	return segmentId, nil
 }
 
-func (r *repo) DeleteSegment(ctx context.Context, slug string) error {
-	_, err := r.pool.Exec(ctx,
+func (r *repo) DeleteSegment(ctx context.Context, slug string) (*int, error) {
+	var removedSegmentId int
+	err := r.pool.QueryRow(ctx,
 		` DELETE FROM segments 
-		  WHERE slug = $1`, slug)
+		  WHERE slug = $1
+		  RETURNING id`, slug).Scan(&removedSegmentId)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
 
-	return err
+	return &removedSegmentId, err
 }
 
-func (r *repo) AddUserToSegment(ctx context.Context, expirationTime *time.Time, segmentToAdd, userId int) error {
-	_, err := r.pool.Exec(ctx,
-		` INSERT INTO users_segments (user_id, segment_id, expiration_time)
-		  VALUES ($1, $2, $3) ON CONFLICT (user_id, segment_id) DO UPDATE
-		  	SET expiration_time = excluded.expiration_time`, userId, segmentToAdd, expirationTime)
+func (r *repo) RemoveUsersFromDeletedSegment(ctx context.Context, sigmentId int) ([]int, error) {
+	rows, err := r.pool.Query(ctx,
+		` DELETE FROM users_segments
+		  WHERE segment_id = $1
+		  RETURNING user_id`, sigmentId)
 
-	return err
+	if err != nil {
+		return nil, err
+	}
+	var usersIDs []int
+	for rows.Next() {
+		var userId int
+		if err := rows.Scan(&userId); err != nil {
+			return nil, err
+		}
+		usersIDs = append(usersIDs, userId)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return usersIDs, nil
 }
 
-func (r *repo) RemoveUserFromSegment(ctx context.Context, segmentFromRemove, userId int) error {
-	_, err := r.pool.Exec(ctx,
-		` DELETE FROM users_segments 
-		  WHERE user_id = $1 
-		  AND segment_id = $2`, userId, segmentFromRemove)
+func (r *repo) AddUserToMultipleSegments(ctx context.Context, expirationTime *time.Time, segmentsIDsToAdd []int, userId int) error {
+	query := `
+		INSERT INTO users_segments (user_id, segment_id, expiration_time)
+		VALUES ($1, $2, $3) ON CONFLICT (user_id, segment_id) DO UPDATE
+		SET expiration_time = excluded.expiration_time`
 
-	return err
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	for _, segmentId := range segmentsIDsToAdd {
+		_, err := tx.Exec(ctx, query, userId, segmentId, expirationTime)
+		if err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit(ctx)
+}
+
+func (r *repo) AddMultipleUsersToSegment(ctx context.Context, segmentId int, usersIDs []int) error {
+	query := `
+	INSERT INTO users_segments (user_id, segment_id)
+	VALUES ($1, $2)`
+
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	for _, userId := range usersIDs {
+		_, err := tx.Exec(ctx, query, userId, segmentId)
+		if err != nil {
+			return err
+		}
+	}
+	return tx.Commit(ctx)
+}
+
+func (r *repo) RemoveUserFromMultipleSegments(ctx context.Context, segmentsIDsToRemove []int, userId int) error {
+	query := `
+		  DELETE FROM users_segments 
+			WHERE user_id = $1 
+			AND segment_id = $2`
+
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	for _, segmentId := range segmentsIDsToRemove {
+		_, err := tx.Exec(ctx, query, userId, segmentId)
+		if err != nil {
+			return err
+		}
+	}
+	return tx.Commit(ctx)
 }
 
 func (r *repo) GetActiveUserSegmentsIDs(ctx context.Context, userId int) ([]int, error) {
@@ -65,10 +145,11 @@ func (r *repo) GetActiveUserSegmentsIDs(ctx context.Context, userId int) ([]int,
 		` SELECT segment_id 
 		  FROM users_segments
 		  WHERE user_id = $1
-		  AND (expiration_time IS NULL OR expiration_time >= CURRENT_TIMESTAMP)`, userId)
+		  AND (expiration_time IS NULL OR expiration_time > CURRENT_TIMESTAMP)`, userId)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	var userSegmentsIDs []int
 
@@ -95,8 +176,10 @@ func (r *repo) GetSlugsByIDs(ctx context.Context, segmentsIDs []int) ([]string, 
 	if err != nil {
 		return nil, err
 	}
-	segmentsSlug := []string{}
 
+	defer rows.Close()
+
+	segmentsSlug := []string{}
 	for rows.Next() {
 		var segment string
 		if err := rows.Scan(&segment); err != nil {
@@ -112,36 +195,39 @@ func (r *repo) GetSlugsByIDs(ctx context.Context, segmentsIDs []int) ([]string, 
 	return segmentsSlug, nil
 }
 
-func (r *repo) GetIdBySlugs(ctx context.Context, slugs []string) ([]int, error) {
+func (r *repo) GetIdsBySlugs(ctx context.Context, slugs []string) ([]int, []string, error) {
 	slugArray := &pgtype.TextArray{}
 	if err := slugArray.Set(slugs); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	rows, err := r.pool.Query(ctx,
-		` SELECT id 
+		` SELECT id, slug 
 		  FROM segments 
 		  WHERE slug = ANY($1)`, slugArray)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	defer rows.Close()
 
-	var ids []int
+	segmentsSlugsIds := make([]int, 0)
+	segmentsSlugs := make([]string, 0)
 	for rows.Next() {
 		var id int
-		if err := rows.Scan(&id); err != nil {
-			return nil, err
+		var slug string
+		if err := rows.Scan(&id, &slug); err != nil {
+			return nil, nil, err
 		}
-		ids = append(ids, id)
+		segmentsSlugsIds = append(segmentsSlugsIds, id)
+		segmentsSlugs = append(segmentsSlugs, slug)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return ids, nil
+	return segmentsSlugsIds, segmentsSlugs, nil
 }
 
 func (r *repo) GetAllUsers(ctx context.Context) ([]int, error) {
@@ -167,4 +253,84 @@ func (r *repo) GetAllUsers(ctx context.Context) ([]int, error) {
 	}
 
 	return userIDs, nil
+}
+
+func (r repo) DeleteExpiredUserSegments(ctx context.Context) (map[int][]int, error) {
+	rows, err := r.pool.Query(ctx,
+		` DELETE FROM users_segments
+		  WHERE expiration_time IS NOT NULL 
+		  AND expiration_time <= CURRENT_TIMESTAMP
+		  RETURNING user_id, segment_id`)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	usersSegments := make(map[int][]int)
+	for rows.Next() {
+		var userID int
+		var segmentID int
+		if err := rows.Scan(&userID, &segmentID); err != nil {
+			return nil, err
+		}
+		usersSegments[userID] = append(usersSegments[userID], segmentID)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return usersSegments, nil
+}
+
+func (r *repo) AddUserMultipleSegmentsToHistory(ctx context.Context, historyData model.HistoryDataMultipleSegments) error {
+	if len(historyData.SegmentSlug) == 0 {
+		return nil
+	}
+
+	query := `
+		INSERT INTO user_segment_history (user_id, segment_slug, operation)
+		VALUES ($1, $2, $3)`
+
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	for _, segmentSlug := range historyData.SegmentSlug {
+		_, err := tx.Exec(ctx, query, historyData.UserId, segmentSlug, historyData.Operation)
+		if err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit(ctx)
+}
+
+func (r *repo) AddMultipleUsersToHistory(ctx context.Context, historyData model.HistoryDataMultipleUsers) error {
+	if len(historyData.SegmentSlug) == 0 {
+		return nil
+	}
+
+	query := `
+		INSERT INTO user_segment_history (user_id, segment_slug, operation)
+		VALUES ($1, $2, $3)`
+
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	for _, userId := range historyData.UsersIDs {
+		_, err := tx.Exec(ctx, query, userId, historyData.SegmentSlug, historyData.Operation)
+		if err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit(ctx)
 }

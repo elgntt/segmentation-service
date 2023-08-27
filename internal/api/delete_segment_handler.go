@@ -15,9 +15,14 @@ func (h *handler) DeleteSegment(c *gin.Context) {
 	request := struct {
 		Slug string `json:"slug"`
 	}{}
-	
+
 	if err := c.BindJSON(&request); err != nil {
 		response.WriteErrorResponse(c, app_err.NewBusinessError("invalid request body"))
+		return
+	}
+
+	if err := validateSegmentSlug(request.Slug); err != nil {
+		response.WriteErrorResponse(c, err)
 		return
 	}
 

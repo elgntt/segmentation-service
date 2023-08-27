@@ -30,8 +30,6 @@ func WriteErrorResponse(c *gin.Context, err error) {
 			},
 		}
 
-		log.Println(err)
-
 		c.JSON(http.StatusBadRequest, errorResponse)
 
 	} else {

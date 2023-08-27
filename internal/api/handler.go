@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/elgntt/avito-internship-2023/internal/model"
+	"github.com/elgntt/avito-internship-2023/internal/pkg/app_err"
 
 	"github.com/gin-gonic/gin"
 )
@@ -32,4 +33,12 @@ func New(service service) *gin.Engine {
 	r.GET("/user/segment/getAllActive", h.GetUserSegments)
 
 	return r
+}
+
+func validateSegmentSlug(slug string) error {
+	if slug == "" {
+		return app_err.NewBusinessError("invalid slug")
+	}
+
+	return nil
 }

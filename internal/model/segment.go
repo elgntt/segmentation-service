@@ -13,3 +13,15 @@ type UserSegmentAction struct {
 	SegmentsToRemove      []string   `json:"segmentsToRemove"`
 	SegmentExpirationTime *time.Time `json:"expirationTime,omitempty"`
 }
+
+type HistoryDataMultipleSegments struct {
+	UserId      int
+	SegmentSlug []string
+	Operation   string
+}
+
+type HistoryDataMultipleUsers struct {
+	UsersIDs    []int
+	SegmentSlug string
+	Operation   string
+}
