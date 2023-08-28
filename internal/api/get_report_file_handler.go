@@ -11,6 +11,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetReportFile
+// @Summary GetReportFile
+// @Tags History
+// @Description Allows you to get a link to a csv file with the user's history for the transferred month-year
+// @Produce application/json
+// @Param 	month query int true "actual month"
+// @Param 	year query int true "actual year"
+// @Param 	userId query int true "actual userId"
+// @Success 200
+// @Failure 400 {object} http.ErrorResponse
+// @Failure 500 {object} http.ErrorResponse
+// @Router /history/file [get]
 func (h *handler) GetReportFile(c *gin.Context) {
 	ctx := context.Background()
 

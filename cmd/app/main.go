@@ -12,6 +12,13 @@ import (
 	"github.com/elgntt/avito-internship-2023/internal/service"
 )
 
+// @title Backend-trainee-assignment-2023
+// @version 1.0
+// @description API Dynamic User Segmentation service
+
+// @host localhost:8080
+// @BasePath /
+
 func main() {
 	dbConnectConfig, err := config.GetConfig()
 	if err != nil {

@@ -7,6 +7,10 @@ import (
 	"github.com/elgntt/avito-internship-2023/internal/pkg/app_err"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"     // swagger embed files
+	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
+
+	_ "github.com/elgntt/avito-internship-2023/docs"
 )
 
 type service interface {
@@ -34,12 +38,16 @@ func New(service service) *gin.Engine {
 	}
 
 	r := gin.New()
+
 	r.Static("/assets/csv_reports", "./assets/csv_reports")
+
 	r.POST("/segment/create", h.CreateSegment)
 	r.POST("/user/segment/action", h.UserSegmentAction)
 	r.DELETE("/segment/delete", h.DeleteSegment)
 	r.GET("/user/segment/getAllActive", h.GetUserSegments)
-	r.GET("/history/generate", h.GetReportFile)
+	r.GET("/history/file", h.GetReportFile)
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	return r
 }

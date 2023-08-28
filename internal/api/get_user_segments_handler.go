@@ -2,15 +2,30 @@ package api
 
 import (
 	"context"
-	"github.com/elgntt/avito-internship-2023/internal/pkg/app_err"
 	"net/http"
 	"strconv"
+
+	"github.com/elgntt/avito-internship-2023/internal/pkg/app_err"
 
 	response "github.com/elgntt/avito-internship-2023/internal/pkg/http"
 
 	"github.com/gin-gonic/gin"
 )
 
+type UserSegmentsResponse struct {
+	UserSegments []string `json:"userSegments"`
+}
+
+// GetReportSegments
+// @Summary GetUserSegments
+// @Tags User
+// @Description Allows you to get data on segments of some user
+// @Produce application/json
+// @Param 	userId query int true "actual userId"
+// @Success 200 {object} api.UserSegmentsResponse
+// @Failure 400 {object} http.ErrorResponse
+// @Failure 500 {object} http.ErrorResponse
+// @Router /user/segment/getAllActive [get]
 func (h *handler) GetUserSegments(c *gin.Context) {
 	userId, err := strconv.Atoi(c.Query("userId"))
 	if err != nil {
@@ -25,7 +40,7 @@ func (h *handler) GetUserSegments(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"userSegments": userSegments,
+	c.JSON(http.StatusOK, UserSegmentsResponse{
+		UserSegments: userSegments,
 	})
 }

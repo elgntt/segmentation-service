@@ -1,0 +1,156 @@
+basePath: /
+definitions:
+  api.DeleteSegmentRequest:
+    properties:
+      slug:
+        type: string
+    type: object
+  api.UserSegmentsResponse:
+    properties:
+      userSegments:
+        items:
+          type: string
+        type: array
+    type: object
+  http.ErrorMessage:
+    properties:
+      message:
+        type: string
+    type: object
+  http.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/http.ErrorMessage'
+      status:
+        type: string
+    type: object
+  model.AddSegment:
+    properties:
+      autoJoinProcent:
+        type: integer
+      slug:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API Dynamic User Segmentation service
+  title: Backend-trainee-assignment-2023
+  version: "1.0"
+paths:
+  /history/file:
+    get:
+      description: Allows you to get a link to a csv file with the user's history
+        for the transferred month-year
+      parameters:
+      - description: actual month
+        in: query
+        name: month
+        required: true
+        type: integer
+      - description: actual year
+        in: query
+        name: year
+        required: true
+        type: integer
+      - description: actual userId
+        in: query
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: GetReportFile
+      tags:
+      - History
+  /segment/create:
+    post:
+      description: Create segment
+      parameters:
+      - description: segment info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddSegment'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: CreateSegment
+      tags:
+      - Segment
+  /segment/delete:
+    delete:
+      description: Delete segment
+      parameters:
+      - description: segment info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/api.DeleteSegmentRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: DeleteSegment
+      tags:
+      - Segment
+  /user/segment/getAllActive:
+    get:
+      description: Allows you to get data on segments of some user
+      parameters:
+      - description: actual userId
+        in: query
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.UserSegmentsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: GetUserSegments
+      tags:
+      - User
+swagger: "2.0"

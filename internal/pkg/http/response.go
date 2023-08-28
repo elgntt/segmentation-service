@@ -10,12 +10,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type errorResponse struct {
+type ErrorResponse struct {
 	Status       string `json:"status"`
-	errorMessage `json:"error"`
+	ErrorMessage `json:"error"`
 }
 
-type errorMessage struct {
+type ErrorMessage struct {
 	Message string `json:"message"`
 }
 
@@ -23,9 +23,9 @@ func WriteErrorResponse(c *gin.Context, err error) {
 	var bErr app_err.BusinessError
 
 	if errors.As(err, &bErr) {
-		errorResponse := errorResponse{
+		errorResponse := ErrorResponse{
 			Status: "error",
-			errorMessage: errorMessage{
+			ErrorMessage: ErrorMessage{
 				Message: bErr.Error(),
 			},
 		}
@@ -33,9 +33,9 @@ func WriteErrorResponse(c *gin.Context, err error) {
 		c.JSON(http.StatusBadRequest, errorResponse)
 
 	} else {
-		errorResponse := errorResponse{
+		errorResponse := ErrorResponse{
 			Status: "error",
-			errorMessage: errorMessage{
+			ErrorMessage: ErrorMessage{
 				Message: "Internal server error",
 			},
 		}

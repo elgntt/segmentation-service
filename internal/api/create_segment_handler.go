@@ -11,6 +11,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CreateSegment
+// @Summary CreateSegment
+// @Tags Segment
+// @Description Create segment
+// @Produce application/json
+// @Param input body model.AddSegment true "segment info"
+// @Success 201
+// @Failure 400 {object} http.ErrorResponse
+// @Failure 500 {object} http.ErrorResponse
+// @Router /segment/create [post]
 func (h *handler) CreateSegment(c *gin.Context) {
 	ctx := context.Background()
 	request := model.AddSegment{}
@@ -31,7 +41,5 @@ func (h *handler) CreateSegment(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"message": "success",
-	})
+	c.Status(http.StatusCreated)
 }

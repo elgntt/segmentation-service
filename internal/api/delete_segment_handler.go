@@ -10,11 +10,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type DeleteSegmentRequest struct {
+	Slug string `json:slug`
+}
+
+// DeleteSegment
+// @Summary DeleteSegment
+// @Tags Segment
+// @Description Delete segment
+// @Produce application/json
+// @Param input body api.DeleteSegmentRequest true "segment info"
+// @Success 200
+// @Failure 400 {object} http.ErrorResponse
+// @Failure 500 {object} http.ErrorResponse
+// @Router /segment/delete [delete]
 func (h *handler) DeleteSegment(c *gin.Context) {
 	ctx := context.Background()
-	request := struct {
-		Slug string `json:"slug"`
-	}{}
+	request := DeleteSegmentRequest{}
 
 	if err := c.BindJSON(&request); err != nil {
 		response.WriteErrorResponse(c, app_err.NewBusinessError("invalid request body"))
@@ -32,7 +44,5 @@ func (h *handler) DeleteSegment(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "success",
-	})
+	c.Status(http.StatusOK)
 }

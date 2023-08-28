@@ -12,6 +12,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// UserSegmentAction
+// @Summary GetUserSegments
+// @Tags User
+// @Description Adds and deletes some transmitted segments for some user
+// @Produce application/json
+// @Param 	input body model.UserSegmentAction true "Segments and userId"
+// @Success 200 {object} api.UserSegmentsResponse
+// @Failure 400 {object} http.ErrorResponse
+// @Failure 500 {object} http.ErrorResponse
+// @Router /user/segment/getAllActive [get]
 func (h *handler) UserSegmentAction(c *gin.Context) {
 	ctx := context.Background()
 	request := model.UserSegmentAction{}
@@ -31,9 +41,7 @@ func (h *handler) UserSegmentAction(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "success",
-	})
+	c.Status(http.StatusOK)
 }
 
 func validateTime(expirationTime *time.Time) error {
