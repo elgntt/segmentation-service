@@ -14,6 +14,12 @@ type UserSegmentAction struct {
 	SegmentExpirationTime *time.Time `json:"expirationTime,omitempty"`
 }
 
+type History struct {
+	UserId        int
+	SegmentSlug   string
+	Operation     string
+	OperationTime time.Time
+}
 type HistoryDataMultipleSegments struct {
 	UserId      int
 	SegmentSlug []string

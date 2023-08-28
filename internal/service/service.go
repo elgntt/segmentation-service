@@ -2,10 +2,15 @@ package service
 
 import (
 	"context"
+	"encoding/csv"
 	"math/rand"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/elgntt/avito-internship-2023/internal/model"
+	"github.com/elgntt/avito-internship-2023/internal/pkg/app_err"
+	"github.com/google/uuid"
 )
 
 type repository interface {
@@ -25,6 +30,8 @@ type repository interface {
 	AddMultipleUsersToHistory(ctx context.Context, historyData model.HistoryDataMultipleUsers) error
 
 	DeleteExpiredUserSegments(ctx context.Context) (map[int][]int, error)
+
+	GetHistory(ctx context.Context, month, year, userId int) ([]model.History, error)
 }
 type Service struct {
 	repository
@@ -33,6 +40,12 @@ type Service struct {
 const (
 	addOperationStr    = "adding"
 	removeOperationStr = "removal"
+
+	csvFilesDir = "./assets/csv_reports/"
+)
+
+const (
+	ErrNoDataAvailable = "no data available"
 )
 
 func New(repo repository) *Service {
@@ -221,4 +234,44 @@ func (s *Service) DeleteExpiredUserSegments(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (s *Service) GenerateCSVFile(ctx context.Context, month, year, userId int) (string, error) {
+	history, err := s.repository.GetHistory(ctx, month, year, userId)
+	if err != nil {
+		return "", err
+	}
+
+	if history == nil {
+		return "", app_err.NewBusinessError(ErrNoDataAvailable)
+	}
+
+	filePath := csvFilesDir + uuid.NewString() + ".csv"
+	file, err := os.Create(filePath)
+	if err != nil {
+		return "", err
+	}
+
+	defer file.Close()
+
+	csvWriter := csv.NewWriter(file)
+
+	csvWriter.Comma = ';'
+
+	for _, historyRow := range history {
+		if err := csvWriter.Write([]string{
+			strconv.Itoa(historyRow.UserId),
+			historyRow.SegmentSlug,
+			historyRow.Operation,
+			historyRow.OperationTime.Format("2006-01-02 15:04:05"),
+		}); err != nil {
+			return "", err
+		}
+	}
+	csvWriter.Flush()
+	if err := csvWriter.Error(); err != nil {
+		return "", err
+	}
+
+	return filePath, nil
 }

@@ -3,11 +3,13 @@ services:
   app:
     container_name: app
     build: "."
-    expose:
-      - "8080"
+    ports:
+      - "8080:8080"
     restart: on-failure
     depends_on:
       - "postgres"
+    volumes:
+      - ./assets/csv_reports:/go/src/app/assets/csv_reports
   postgres:
     container_name: postgres
     image:

@@ -334,3 +334,33 @@ func (r *repo) AddMultipleUsersToHistory(ctx context.Context, historyData model.
 
 	return tx.Commit(ctx)
 }
+
+func (r *repo) GetHistory(ctx context.Context, month, year, userId int) ([]model.History, error) {
+	rows, err := r.pool.Query(ctx,
+		` SELECT user_id, segment_slug, operation, operation_time
+			FROM user_segment_history
+			WHERE DATE_TRUNC('month', operation_time) = $1::date
+			AND user_id = $2
+			ORDER BY operation_time`, time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC), userId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var history []model.History
+	for rows.Next() {
+		var historyRow model.History
+		if err := rows.Scan(&historyRow.UserId, &historyRow.SegmentSlug, &historyRow.Operation, &historyRow.OperationTime); err != nil {
+			return nil, err
+		}
+		history = append(history, historyRow)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return history, nil
+}
