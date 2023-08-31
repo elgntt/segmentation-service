@@ -11,7 +11,6 @@ import (
 )
 
 type ErrorResponse struct {
-	Status       string `json:"status"`
 	ErrorMessage `json:"error"`
 }
 
@@ -24,7 +23,6 @@ func WriteErrorResponse(c *gin.Context, err error) {
 
 	if errors.As(err, &bErr) {
 		errorResponse := ErrorResponse{
-			Status: "error",
 			ErrorMessage: ErrorMessage{
 				Message: bErr.Error(),
 			},
@@ -34,7 +32,6 @@ func WriteErrorResponse(c *gin.Context, err error) {
 
 	} else {
 		errorResponse := ErrorResponse{
-			Status: "error",
 			ErrorMessage: ErrorMessage{
 				Message: "Internal server error",
 			},

@@ -8,7 +8,7 @@ import (
 	"github.com/elgntt/avito-internship-2023/internal/api"
 	"github.com/elgntt/avito-internship-2023/internal/config"
 	"github.com/elgntt/avito-internship-2023/internal/pkg/db"
-	repository "github.com/elgntt/avito-internship-2023/internal/repository/postgres"
+	"github.com/elgntt/avito-internship-2023/internal/repository"
 	"github.com/elgntt/avito-internship-2023/internal/service"
 )
 
@@ -20,35 +20,51 @@ import (
 // @BasePath /
 
 func main() {
-	dbConnectConfig, err := config.GetConfig()
+	dbCfg, err := config.GetDBConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	ctx := context.Background()
-	pool, err := db.OpenDB(ctx, dbConnectConfig)
+	pool, err := db.OpenDB(ctx, dbCfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	service := service.New(
-		repository.New(pool),
-	)
+	historyRepo := repository.NewHistoryRepo(pool)
+	segmentRepo := repository.NewSegmentRepo(pool)
+	userRepo := repository.NewUserRepo(pool)
 
+	historyService := service.NewHistoryService(
+		historyRepo,
+		segmentRepo,
+	)
 	r := api.New(
-		service,
+		service.NewUserService(
+			userRepo,
+			segmentRepo,
+			historyRepo,
+		),
+		historyService,
+		service.NewSegmentService(
+			segmentRepo,
+			historyRepo,
+			userRepo,
+		),
 	)
 
-	go ClearExpiredSegmentsWorker(ctx, service)
+	go ClearExpiredSegmentsWorker(ctx, historyService)
 
-	log.Println("Server has been successfully started on the port :8080")
-	log.Fatal(r.Run(":8080"))
+	serverCfg := config.GetServerConfig()
+
+	log.Println("Server has been successfully started on the port:" + serverCfg.HTTPPort)
+	log.Fatal(r.Run(serverCfg.HTTPPort))
 }
 
-func ClearExpiredSegmentsWorker(ctx context.Context, s *service.Service) {
-	for {
-		workerInterval := time.NewTicker(1 * time.Minute)
+func ClearExpiredSegmentsWorker(ctx context.Context, s *service.HistoryService) {
+	workerInterval := time.NewTicker(1 * time.Minute)
 
+	for {
 		select {
 		case <-workerInterval.C:
 			err := s.DeleteExpiredUserSegments(ctx)

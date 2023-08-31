@@ -11,7 +11,7 @@ import (
 )
 
 type DeleteSegmentRequest struct {
-	Slug string `json:slug`
+	SegmentSlug string `json:"slug"`
 }
 
 // DeleteSegment
@@ -33,12 +33,12 @@ func (h *handler) DeleteSegment(c *gin.Context) {
 		return
 	}
 
-	if err := validateSegmentSlug(request.Slug); err != nil {
+	if err := validateSegmentSlug(request.SegmentSlug); err != nil {
 		response.WriteErrorResponse(c, err)
 		return
 	}
 
-	err := h.service.DeleteSegment(ctx, request.Slug)
+	err := h.segmentService.DeleteSegment(ctx, request.SegmentSlug)
 	if err != nil {
 		response.WriteErrorResponse(c, err)
 		return

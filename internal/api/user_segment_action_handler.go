@@ -21,7 +21,7 @@ import (
 // @Success 200 {object} api.UserSegmentsResponse
 // @Failure 400 {object} http.ErrorResponse
 // @Failure 500 {object} http.ErrorResponse
-// @Router /user/segment/getAllActive [get]
+// @Router /user/segment/action [post]
 func (h *handler) UserSegmentAction(c *gin.Context) {
 	ctx := context.Background()
 	request := model.UserSegmentAction{}
@@ -30,18 +30,34 @@ func (h *handler) UserSegmentAction(c *gin.Context) {
 		return
 	}
 
-	if err := validateTime(request.SegmentExpirationTime); err != nil {
+	if err := validateRequestData(request); err != nil {
 		response.WriteErrorResponse(c, err)
 		return
 	}
 
-	err := h.service.UserSegmentAction(ctx, request)
+	err := h.userService.UserSegmentAction(ctx, request)
 	if err != nil {
 		response.WriteErrorResponse(c, err)
 		return
 	}
 
 	c.Status(http.StatusOK)
+}
+
+func validateRequestData(request model.UserSegmentAction) error {
+	if request.UserID < 1 {
+		return app_err.NewBusinessError(ErrInvalidUserId)
+	}
+
+	if len(request.SegmentsSlugsToAdd) == 0 && len(request.SegmentsSlugsToRemove) == 0 {
+		return app_err.NewBusinessError("no segments specified")
+	}
+
+	if err := validateTime(request.SegmentExpirationTime); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func validateTime(expirationTime *time.Time) error {

@@ -8,7 +8,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type Config struct {
+type DBConfig struct {
 	PgUser     string
 	PgPassword string
 	PgHost     string
@@ -17,13 +17,18 @@ type Config struct {
 	PgSSLMode  string
 }
 
-func GetConfig() (Config, error) {
+type ServerConfig struct {
+	HTTPPort       string
+	ServerEndpoint string
+}
+
+func GetDBConfig() (DBConfig, error) {
 	pgPort, err := strconv.ParseInt(getKey("PGPORT"), 0, 16)
 	if err != nil {
-		return Config{}, err
+		return DBConfig{}, err
 	}
 
-	return Config{
+	return DBConfig{
 		PgUser:     getKey("PGUSER"),
 		PgPassword: getKey("PGPASSWORD"),
 		PgHost:     getKey("PGHOST"),
@@ -31,6 +36,13 @@ func GetConfig() (Config, error) {
 		PgDatabase: getKey("PGDATABASE"),
 		PgSSLMode:  getKey("PGSSLMODE"),
 	}, nil
+}
+
+func GetServerConfig() ServerConfig {
+	return ServerConfig{
+		HTTPPort:       ":" + getKey("HTTP_PORT"),
+		ServerEndpoint: getKey("SERVER_ENDPOINT"),
+	}
 }
 
 func getKey(key string) string {

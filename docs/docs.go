@@ -51,7 +51,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.responseUrl"
+                        }
                     },
                     "400": {
                         "description": "Bad Request",
@@ -148,6 +151,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/segment/action": {
+            "post": {
+                "description": "Adds and deletes some transmitted segments for some user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "GetUserSegments",
+                "parameters": [
+                    {
+                        "description": "Segments and userId",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.UserSegmentAction"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.UserSegmentsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/http.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/segment/getAllActive": {
             "get": {
                 "description": "Allows you to get data on segments of some user",
@@ -202,11 +248,22 @@ const docTemplate = `{
         "api.UserSegmentsResponse": {
             "type": "object",
             "properties": {
-                "userSegments": {
+                "segments": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
+                },
+                "userId": {
+                    "type": "integer"
+                }
+            }
+        },
+        "api.responseUrl": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
                 }
             }
         },
@@ -223,20 +280,40 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "$ref": "#/definitions/http.ErrorMessage"
-                },
-                "status": {
-                    "type": "string"
                 }
             }
         },
         "model.AddSegment": {
             "type": "object",
             "properties": {
-                "autoJoinProcent": {
+                "autoJoinPercent": {
                     "type": "integer"
                 },
                 "slug": {
                     "type": "string"
+                }
+            }
+        },
+        "model.UserSegmentAction": {
+            "type": "object",
+            "properties": {
+                "expirationTime": {
+                    "type": "string"
+                },
+                "segmentsToAdd": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "segmentsToRemove": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "userId": {
+                    "type": "integer"
                 }
             }
         }

@@ -16,7 +16,6 @@ CREATE TABLE users_segments (
 );
 
 CREATE TABLE user_segment_history (
-    id SERIAL PRIMARY KEY,
     user_id INT,
     segment_slug TEXT,
     operation TEXT,

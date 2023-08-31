@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func OpenDB(ctx context.Context, cfg config.Config) (*pgxpool.Pool, error) {
+func OpenDB(ctx context.Context, cfg config.DBConfig) (*pgxpool.Pool, error) {
 	config, err := pgxpool.ParseConfig("")
 	if err != nil {
 		return nil, fmt.Errorf("OpenDB config parse: %w", err)

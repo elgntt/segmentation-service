@@ -30,16 +30,27 @@ func (h *handler) CreateSegment(c *gin.Context) {
 		return
 	}
 
-	if err := validateSegmentSlug(request.Slug); err != nil {
+	if err := validateReqData(request); err != nil {
 		response.WriteErrorResponse(c, err)
 		return
 	}
 
-	err := h.service.CreateSegment(ctx, request)
+	err := h.segmentService.CreateSegment(ctx, request)
 	if err != nil {
 		response.WriteErrorResponse(c, err)
 		return
 	}
 
 	c.Status(http.StatusCreated)
+}
+
+func validateReqData(segmentData model.AddSegment) error {
+	if segmentData.SegmentSlug == "" {
+		return app_err.NewBusinessError(ErrInvalidSegmentSlug)
+	}
+	if segmentData.AutoJoinPercent < 0 || segmentData.AutoJoinPercent > 100 {
+		return app_err.NewBusinessError(ErrInvalidAutoJoinProcent)
+	}
+
+	return nil
 }

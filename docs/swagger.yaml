@@ -7,10 +7,17 @@ definitions:
     type: object
   api.UserSegmentsResponse:
     properties:
-      userSegments:
+      segments:
         items:
           type: string
         type: array
+      userId:
+        type: integer
+    type: object
+  api.responseUrl:
+    properties:
+      url:
+        type: string
     type: object
   http.ErrorMessage:
     properties:
@@ -21,15 +28,28 @@ definitions:
     properties:
       error:
         $ref: '#/definitions/http.ErrorMessage'
-      status:
-        type: string
     type: object
   model.AddSegment:
     properties:
-      autoJoinProcent:
+      autoJoinPercent:
         type: integer
       slug:
         type: string
+    type: object
+  model.UserSegmentAction:
+    properties:
+      expirationTime:
+        type: string
+      segmentsToAdd:
+        items:
+          type: string
+        type: array
+      segmentsToRemove:
+        items:
+          type: string
+        type: array
+      userId:
+        type: integer
     type: object
 host: localhost:8080
 info:
@@ -63,6 +83,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/api.responseUrl'
         "400":
           description: Bad Request
           schema:
@@ -126,6 +148,34 @@ paths:
       summary: DeleteSegment
       tags:
       - Segment
+  /user/segment/action:
+    post:
+      description: Adds and deletes some transmitted segments for some user
+      parameters:
+      - description: Segments and userId
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserSegmentAction'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.UserSegmentsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: GetUserSegments
+      tags:
+      - User
   /user/segment/getAllActive:
     get:
       description: Allows you to get data on segments of some user

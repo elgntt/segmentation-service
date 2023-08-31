@@ -11,6 +11,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type parameters struct {
+	Month  int
+	Year   int
+	UserId int
+}
+
+type responseUrl struct {
+	URL string `json:"url"`
+}
+
 // GetReportFile
 // @Summary GetReportFile
 // @Tags History
@@ -19,55 +29,58 @@ import (
 // @Param 	month query int true "actual month"
 // @Param 	year query int true "actual year"
 // @Param 	userId query int true "actual userId"
-// @Success 200
+// @Success 200 {object} api.responseUrl
 // @Failure 400 {object} http.ErrorResponse
 // @Failure 500 {object} http.ErrorResponse
 // @Router /history/file [get]
 func (h *handler) GetReportFile(c *gin.Context) {
 	ctx := context.Background()
 
-	month, year, userId, err := parseParameters(c.Query("month"), c.Query("year"), c.Query("userId"))
+	params, err := parseParameters(c.Query("month"), c.Query("year"), c.Query("userId"))
 	if err != nil {
 		response.WriteErrorResponse(c, err)
 		return
 	}
 
-	filePath, err := h.service.GenerateCSVFile(ctx, month, year, userId)
+	filePath, err := h.historyService.GenerateCSVFile(ctx, params.Month, params.Year, params.UserId)
 	if err != nil {
 		response.WriteErrorResponse(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"url": "http://localhost:8080/" + filePath,
+	c.JSON(http.StatusOK, responseUrl{
+		URL: filePath,
 	})
 }
 
-func parseParameters(monthQuery, yearQuery string, userIdQuery string) (int, int, int, error) {
+func parseParameters(monthQuery, yearQuery string, userIdQuery string) (parameters, error) {
 	if yearQuery == "" {
-		return 0, 0, 0, app_err.NewBusinessError(ErrInvalidYearParameter)
+		return parameters{}, app_err.NewBusinessError(ErrInvalidYearParameter)
 	}
 	if monthQuery == "" {
-		return 0, 0, 0, app_err.NewBusinessError(ErrInvalidMonthParameter)
+		return parameters{}, app_err.NewBusinessError(ErrInvalidMonthParameter)
 	}
 	if userIdQuery == "" {
-		return 0, 0, 0, app_err.NewBusinessError(ErrInvalidUserIdParameter)
+		return parameters{}, app_err.NewBusinessError(ErrInvalidUserIdParameter)
 	}
 
-	year, err := strconv.Atoi(yearQuery)
+	var err error
+	params := parameters{}
+
+	params.Year, err = strconv.Atoi(yearQuery)
 	if err != nil {
-		return 0, 0, 0, app_err.NewBusinessError(ErrInvalidYearParameter)
+		return parameters{}, app_err.NewBusinessError(ErrInvalidYearParameter)
 	}
 
-	month, err := strconv.Atoi(monthQuery)
+	params.Month, err = strconv.Atoi(monthQuery)
 	if err != nil {
-		return 0, 0, 0, app_err.NewBusinessError(ErrInvalidMonthParameter)
+		return parameters{}, app_err.NewBusinessError(ErrInvalidMonthParameter)
 	}
 
-	userId, err := strconv.Atoi(userIdQuery)
+	params.UserId, err = strconv.Atoi(userIdQuery)
 	if err != nil {
-		return 0, 0, 0, app_err.NewBusinessError(ErrInvalidUserIdParameter)
+		return parameters{}, app_err.NewBusinessError(ErrInvalidUserIdParameter)
 	}
 
-	return month, year, userId, nil
+	return params, nil
 }

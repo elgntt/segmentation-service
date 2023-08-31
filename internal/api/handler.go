@@ -1,9 +1,6 @@
 package api
 
 import (
-	"context"
-
-	"github.com/elgntt/avito-internship-2023/internal/model"
 	"github.com/elgntt/avito-internship-2023/internal/pkg/app_err"
 
 	"github.com/gin-gonic/gin"
@@ -13,29 +10,31 @@ import (
 	_ "github.com/elgntt/avito-internship-2023/docs"
 )
 
-type service interface {
-	CreateSegment(ctx context.Context, segmentData model.AddSegment) error
-	DeleteSegment(ctx context.Context, slug string) error
-	UserSegmentAction(ctx context.Context, userSegment model.UserSegmentAction) error
-	GetActiveUserSegments(ctx context.Context, userId int) ([]string, error)
-	GenerateCSVFile(ctx context.Context, month, year, userId int) (string, error)
-}
-
 const (
 	ErrInvalidYearParameter   = `invalid "year" parameter`
 	ErrInvalidMonthParameter  = `invalid "month" parameter`
 	ErrInvalidSegmentSlug     = `invalid segment slug`
 	ErrInvalidUserIdParameter = `invalid "userId" parameter`
+	ErrInvalidAutoJoinProcent = `invalid "autoJoinProcent" value`
+	ErrInvalidUserId          = "invalid userId"
 )
 
 type handler struct {
-	service
+	userService
+	historyService
+	segmentService
 }
 
-func New(service service) *gin.Engine {
-	h := handler{
-		service: service,
+func NewHandler(userService userService, historyService historyService, segmentService segmentService) *handler {
+	return &handler{
+		userService,
+		historyService,
+		segmentService,
 	}
+}
+
+func New(us userService, hs historyService, ss segmentService) *gin.Engine {
+	h := NewHandler(us, hs, ss)
 
 	r := gin.New()
 

@@ -3,19 +3,24 @@ package model
 import "time"
 
 type AddSegment struct {
-	Slug            string `json:"slug"`
-	AutoJoinProcent int    `json:"autoJoinProcent"`
+	SegmentSlug     string `json:"slug"`
+	AutoJoinPercent int    `json:"autoJoinPercent"`
 }
 
 type UserSegmentAction struct {
 	UserID                int        `json:"userId"`
-	SegmentsToAdd         []string   `json:"segmentsToAdd"`
-	SegmentsToRemove      []string   `json:"segmentsToRemove"`
+	SegmentsSlugsToAdd    []string   `json:"segmentsToAdd"`
+	SegmentsSlugsToRemove []string   `json:"segmentsToRemove"`
 	SegmentExpirationTime *time.Time `json:"expirationTime,omitempty"`
 }
 
+type UsersSegments struct {
+	UserId       int
+	SegmentSlugs []string
+}
+
 type History struct {
-	UserId        int
+	UserID        int
 	SegmentSlug   string
 	Operation     string
 	OperationTime time.Time
