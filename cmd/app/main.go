@@ -5,14 +5,14 @@ import (
 	"log"
 	"time"
 
-	"github.com/elgntt/avito-internship-2023/internal/api"
-	"github.com/elgntt/avito-internship-2023/internal/config"
-	"github.com/elgntt/avito-internship-2023/internal/pkg/db"
-	"github.com/elgntt/avito-internship-2023/internal/repository"
-	"github.com/elgntt/avito-internship-2023/internal/service"
+	"github.com/elgntt/segmentation-service/internal/api"
+	"github.com/elgntt/segmentation-service/internal/config"
+	"github.com/elgntt/segmentation-service/internal/pkg/db"
+	"github.com/elgntt/segmentation-service/internal/repository"
+	"github.com/elgntt/segmentation-service/internal/service"
 )
 
-// @title Backend-trainee-assignment-2023
+// @title Segmentation Service
 // @version 1.0
 // @description API Dynamic User Segmentation service
 

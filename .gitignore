@@ -1,3 +1,4 @@
 .env
 pgdata
 assets
+.idea

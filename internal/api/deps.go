@@ -3,7 +3,7 @@ package api
 import (
 	"context"
 
-	"github.com/elgntt/avito-internship-2023/internal/model"
+	"github.com/elgntt/segmentation-service/internal/model"
 )
 
 // todo make private

@@ -4,9 +4,9 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/elgntt/avito-internship-2023/internal/model"
-	"github.com/elgntt/avito-internship-2023/internal/pkg/app_err"
-	response "github.com/elgntt/avito-internship-2023/internal/pkg/http"
+	"github.com/elgntt/segmentation-service/internal/model"
+	"github.com/elgntt/segmentation-service/internal/pkg/app_err"
+	response "github.com/elgntt/segmentation-service/internal/pkg/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,7 +20,7 @@ import (
 // @Success 201
 // @Failure 400 {object} http.ErrorResponse
 // @Failure 500 {object} http.ErrorResponse
-// @Router /segment/create [post]
+// @Router /segment [post]
 func (h *handler) CreateSegment(c *gin.Context) {
 	ctx := context.Background()
 	request := model.AddSegment{}
@@ -49,7 +49,7 @@ func validateReqData(segmentData model.AddSegment) error {
 		return app_err.NewBusinessError(ErrInvalidSegmentSlug)
 	}
 	if segmentData.AutoJoinPercent < 0 || segmentData.AutoJoinPercent > 100 {
-		return app_err.NewBusinessError(ErrInvalidAutoJoinProcent)
+		return app_err.NewBusinessError(ErrInvalidAutoJoinPercent)
 	}
 
 	return nil

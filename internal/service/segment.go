@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	"github.com/elgntt/avito-internship-2023/internal/model"
-	"github.com/elgntt/avito-internship-2023/internal/pkg/app_err"
+	"github.com/elgntt/segmentation-service/internal/model"
+	"github.com/elgntt/segmentation-service/internal/pkg/app_err"
 )
 
 type SegmentService struct {

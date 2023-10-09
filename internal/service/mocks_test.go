@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 	time "time"
 
-	model "github.com/elgntt/avito-internship-2023/internal/model"
+	model "github.com/elgntt/segmentation-service/internal/model"
 	gomock "github.com/golang/mock/gomock"
 )
 

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/elgntt/avito-internship-2023/internal/model"
+	"github.com/elgntt/segmentation-service/internal/model"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 

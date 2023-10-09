@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/elgntt/avito-internship-2023/internal/pkg/app_err"
-	response "github.com/elgntt/avito-internship-2023/internal/pkg/http"
+	"github.com/elgntt/segmentation-service/internal/pkg/app_err"
+	response "github.com/elgntt/segmentation-service/internal/pkg/http"
 
 	"github.com/gin-gonic/gin"
 )

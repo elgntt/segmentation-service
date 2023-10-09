@@ -3,7 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
-	"github.com/elgntt/avito-internship-2023/internal/config"
+	"github.com/elgntt/segmentation-service/internal/config"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )

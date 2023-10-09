@@ -3,12 +3,12 @@ package service
 import (
 	"context"
 	"encoding/csv"
-	"github.com/elgntt/avito-internship-2023/internal/config"
+	"github.com/elgntt/segmentation-service/internal/config"
 	"os"
 	"strconv"
 
-	"github.com/elgntt/avito-internship-2023/internal/model"
-	"github.com/elgntt/avito-internship-2023/internal/pkg/app_err"
+	"github.com/elgntt/segmentation-service/internal/model"
+	"github.com/elgntt/segmentation-service/internal/pkg/app_err"
 	"github.com/google/uuid"
 )
 

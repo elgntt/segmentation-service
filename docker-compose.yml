@@ -27,3 +27,10 @@ services:
       - "5432"
     env_file:
       - .env
+  migrate:
+    image: migrate/migrate
+    env_file:
+      - .env
+    volumes:
+      - ./db:/migrations
+    command: [ "-path", "/migrations", "-database",  "postgres://${PGUSER}:${PGPASSWORD}@${PGHOST}/${PGDATABASE}?sslmode=${PGSSLMODE}", "up" ]

@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/elgntt/avito-internship-2023/internal/pkg/app_err"
-	response "github.com/elgntt/avito-internship-2023/internal/pkg/http"
+	"github.com/elgntt/segmentation-service/internal/pkg/app_err"
+	response "github.com/elgntt/segmentation-service/internal/pkg/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,7 +23,7 @@ type DeleteSegmentRequest struct {
 // @Success 200
 // @Failure 400 {object} http.ErrorResponse
 // @Failure 500 {object} http.ErrorResponse
-// @Router /segment/delete [delete]
+// @Router /segment [delete]
 func (h *handler) DeleteSegment(c *gin.Context) {
 	ctx := context.Background()
 	request := DeleteSegmentRequest{}

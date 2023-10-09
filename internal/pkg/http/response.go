@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/elgntt/avito-internship-2023/internal/pkg/app_err"
+	"github.com/elgntt/segmentation-service/internal/pkg/app_err"
 
 	"github.com/gin-gonic/gin"
 )

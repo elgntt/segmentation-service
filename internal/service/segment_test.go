@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/elgntt/avito-internship-2023/internal/model"
+	"github.com/elgntt/segmentation-service/internal/model"
 	gomock "github.com/golang/mock/gomock"
 )
 

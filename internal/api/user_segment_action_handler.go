@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/elgntt/avito-internship-2023/internal/model"
-	"github.com/elgntt/avito-internship-2023/internal/pkg/app_err"
-	response "github.com/elgntt/avito-internship-2023/internal/pkg/http"
+	"github.com/elgntt/segmentation-service/internal/model"
+	"github.com/elgntt/segmentation-service/internal/pkg/app_err"
+	response "github.com/elgntt/segmentation-service/internal/pkg/http"
 
 	"github.com/gin-gonic/gin"
 )

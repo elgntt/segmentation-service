@@ -71,7 +71,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/segment/create": {
+        "/segment": {
             "post": {
                 "description": "Create segment",
                 "produces": [
@@ -109,9 +109,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/segment/delete": {
+            },
             "delete": {
                 "description": "Delete segment",
                 "produces": [
@@ -194,7 +192,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/segment/getAllActive": {
+        "/user/segment/active": {
             "get": {
                 "description": "Allows you to get data on segments of some user",
                 "produces": [
@@ -326,7 +324,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "Backend-trainee-assignment-2023",
+	Title:            "Segmentation Service",
 	Description:      "API Dynamic User Segmentation service",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

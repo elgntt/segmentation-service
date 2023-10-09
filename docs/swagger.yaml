@@ -55,7 +55,7 @@ host: localhost:8080
 info:
   contact: {}
   description: API Dynamic User Segmentation service
-  title: Backend-trainee-assignment-2023
+  title: Segmentation Service
   version: "1.0"
 paths:
   /history/file:
@@ -96,33 +96,7 @@ paths:
       summary: GetReportFile
       tags:
       - History
-  /segment/create:
-    post:
-      description: Create segment
-      parameters:
-      - description: segment info
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/model.AddSegment'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/http.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/http.ErrorResponse'
-      summary: CreateSegment
-      tags:
-      - Segment
-  /segment/delete:
+  /segment:
     delete:
       description: Delete segment
       parameters:
@@ -146,6 +120,31 @@ paths:
           schema:
             $ref: '#/definitions/http.ErrorResponse'
       summary: DeleteSegment
+      tags:
+      - Segment
+    post:
+      description: Create segment
+      parameters:
+      - description: segment info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddSegment'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: CreateSegment
       tags:
       - Segment
   /user/segment/action:
@@ -176,7 +175,7 @@ paths:
       summary: GetUserSegments
       tags:
       - User
-  /user/segment/getAllActive:
+  /user/segment/active:
     get:
       description: Allows you to get data on segments of some user
       parameters:

@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
-	"github.com/elgntt/avito-internship-2023/internal/pkg/app_err"
+	"github.com/elgntt/segmentation-service/internal/pkg/app_err"
 	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/jackc/pgtype"

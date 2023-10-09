@@ -2,7 +2,7 @@
     "swagger": "2.0",
     "info": {
         "description": "API Dynamic User Segmentation service",
-        "title": "Backend-trainee-assignment-2023",
+        "title": "Segmentation Service",
         "contact": {},
         "version": "1.0"
     },
@@ -64,7 +64,7 @@
                 }
             }
         },
-        "/segment/create": {
+        "/segment": {
             "post": {
                 "description": "Create segment",
                 "produces": [
@@ -102,9 +102,7 @@
                         }
                     }
                 }
-            }
-        },
-        "/segment/delete": {
+            },
             "delete": {
                 "description": "Delete segment",
                 "produces": [
@@ -187,7 +185,7 @@
                 }
             }
         },
-        "/user/segment/getAllActive": {
+        "/user/segment/active": {
             "get": {
                 "description": "Allows you to get data on segments of some user",
                 "produces": [

@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/elgntt/avito-internship-2023/internal/pkg/app_err"
+	"github.com/elgntt/segmentation-service/internal/pkg/app_err"
 
-	response "github.com/elgntt/avito-internship-2023/internal/pkg/http"
+	response "github.com/elgntt/segmentation-service/internal/pkg/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,7 +26,7 @@ type UserSegmentsResponse struct {
 // @Success 200 {object} api.UserSegmentsResponse
 // @Failure 400 {object} http.ErrorResponse
 // @Failure 500 {object} http.ErrorResponse
-// @Router /user/segment/getAllActive [get]
+// @Router /user/segment/active [get]
 func (h *handler) GetUserSegments(c *gin.Context) {
 	userId, err := strconv.Atoi(c.Query("userId"))
 	if err != nil {

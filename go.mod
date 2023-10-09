@@ -1,4 +1,4 @@
-module github.com/elgntt/avito-internship-2023
+module github.com/elgntt/segmentation-service
 
 go 1.21.0
 

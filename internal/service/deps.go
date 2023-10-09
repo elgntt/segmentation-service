@@ -5,7 +5,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/elgntt/avito-internship-2023/internal/model"
+	"github.com/elgntt/segmentation-service/internal/model"
 )
 
 type SegmentRepo interface {
